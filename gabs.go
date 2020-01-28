@@ -559,19 +559,24 @@ then reassign with Set.
 // target is not a JSON array then it will be converted into one, with its
 // original contents set to the first element of the array.
 func (g *Container) ArrayAppend(value interface{}, hierarchy ...string) error {
-	if array, ok := g.Search(hierarchy...).Data().([]interface{}); ok {
-		array = append(array, value)
-		_, err := g.Set(array, hierarchy...)
-		return err
-	}
+	// If the object retrieved cannot be type asserted to a slice of interface{},
+	// the default value of that type will be set to the `array` variable.
+	array, _ := g.Search(hierarchy...).Data().([]interface{})
 
-	newArray := []interface{}{}
 	if d := g.Search(hierarchy...).Data(); d != nil {
-		newArray = append(newArray, d)
+		array = append(array, d)
 	}
-	newArray = append(newArray, value)
 
-	_, err := g.Set(newArray, hierarchy...)
+	switch v := value.(type) {
+	case []interface{}:
+		// If we have been given a slice of interface, expand it when appending.
+		array = append(array, v...)
+	default:
+		array = append(array, v)
+	}
+
+	_, err := g.Set(array, hierarchy...)
+
 	return err
 }
 
