@@ -828,6 +828,51 @@ func TestExamples3(t *testing.T) {
 	}
 }
 
+func TestArrayAppendExpansion(t *testing.T) {
+	jsonObj := New()
+
+	jsonObj.ArrayP("foo.array")
+
+	jsonObj.ArrayAppend(10, "foo", "array")
+	jsonObj.ArrayAppend([]interface{}{20,30}, "foo", "array")
+
+	result := jsonObj.String()
+	expected := `{"foo":{"array":[10,20,30]}}`
+
+	if result != expected {
+		t.Errorf("Non matched output: %v != %v", result, expected)
+	}
+
+	jsonObj = New()
+
+	jsonObj.ArrayP("foo.array")
+
+	jsonObj.ArrayAppend([]interface{}{10,20}, "foo", "array")
+	jsonObj.ArrayAppend(30, "foo", "array")
+
+	result = jsonObj.String()
+	expected = `{"foo":{"array":[10,20,30]}}`
+
+	if result != expected {
+		t.Errorf("Non matched output: %v != %v", result, expected)
+	}
+
+	jsonObj = New()
+
+	jsonObj.ArrayP("foo.array")
+
+	jsonObj.ArrayAppend([]interface{}{10}, "foo", "array")
+	jsonObj.ArrayAppend([]interface{}{20}, "foo", "array")
+	jsonObj.ArrayAppend([]interface{}{30}, "foo", "array")
+
+	result = jsonObj.String()
+	expected = `{"foo":{"array":[10,20,30]}}`
+
+	if result != expected {
+		t.Errorf("Non matched output: %v != %v", result, expected)
+	}
+}
+
 func TestDotNotation(t *testing.T) {
 	sample := []byte(`{"test":{"inner":{"value":10}},"test2":20}`)
 
